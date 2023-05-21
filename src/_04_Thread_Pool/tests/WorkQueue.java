@@ -3,12 +3,12 @@ package _04_Thread_Pool.tests;
 import java.lang.Thread.State;
 import java.util.ArrayDeque;
 
-public class workQueue implements Runnable {
+public class WorkQueue implements Runnable {
 	private ArrayDeque<Job> jobQueue = new ArrayDeque<Job>();
 	private Thread[] threads;
 	private volatile boolean isRunning = true;
 	
-	public workQueue () {
+	public WorkQueue () {
 		int numThreads = Runtime.getRuntime().availableProcessors()-1;
 		threads = new Thread[numThreads];
 		for (int i = 0; i < threads.length; i++) {
@@ -20,6 +20,7 @@ public class workQueue implements Runnable {
 		return threads.length;
 	}
 	public void shutdown() {
+		completeAllJobs();
 		isRunning = false;
 		synchronized (jobQueue) {
 			jobQueue.notifyAll();
@@ -57,7 +58,6 @@ public class workQueue implements Runnable {
 	}
 	public void run() {
 		while(isRunning) {
-			System.out.println("Input from thread # " + Thread.currentThread().getId());
 			if(!performJob()) {	
 				synchronized (jobQueue) {
 					try {
